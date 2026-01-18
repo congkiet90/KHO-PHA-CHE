@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import ReactDOM from 'react-dom/client';
 import { 
   Camera, Package, List, Save, CheckCircle2, 
   AlertCircle, Database, LayoutDashboard, 
   Clock, RotateCcw, Search, X, RefreshCw, Lock, AlertTriangle 
 } from 'lucide-react';
 
-// --- CONFIGURATION ---
+// --- 1. CẤU HÌNH LIÊN KẾT ---
 const FIXED_SHEET_URL = "https://script.google.com/macros/s/AKfycbwUCPOacIF5FDOAuo8e8266cgntJU18LqgEywK70iFimEaral_XmDCfvEf10aJ_hmXl/exec";
 const RESET_PASSWORD = "040703";
 
-// --- FULL LIST OF 177 ITEMS WITH STOCK LIMITS ---
+// --- 2. DANH SÁCH 177 SẢN PHẨM ---
 const SKU_LIST = [
   { sku: "110011", name: "Cà phê chế phin 1-500Gr", unit: "KG", min: 10 },
   { sku: "210014", name: "Cà phê chế phin 4-500Gr", unit: "KG", min: 10 },
@@ -47,8 +48,8 @@ const SKU_LIST = [
   { sku: "11587", name: "Cà Phê Legend Cappucino Hazelnut", unit: "HOP", min: 3 },
   { sku: "11589", name: "Cà Phê Legend Cappucino Mocha", unit: "HOP", min: 3 },
   { sku: "11590", name: "Cà Phê G7 hòa tan đen hộp 15 gói", unit: "HOP", min: 5 },
-  { sku: "11593", name: "Cà phê G7 3in1 bịch 50 sachets", unit: "BICH", min: 5 },
-  { sku: "11594", name: "Cà phê G7 3in1 - Hộp 18 sticks", unit: "HOP", min: 5 },
+  { sku: "11593", name: "Cà phê G7 3in1 bịch 50 sachets 16g", unit: "BICH", min: 5 },
+  { sku: "11594", name: "Cà phê G7 3in1 - Hộp 18 sticks 16g", unit: "HOP", min: 5 },
   { sku: "11595", name: "Cà phê G7 3in1 - Hộp 21", unit: "HOP", min: 5 },
   { sku: "11596", name: "Cà phê Legend Passiona - hộp 14 sticks", unit: "HOP", min: 3 },
   { sku: "11597", name: "Cà phê G7 2in1 hộp 15 sachets", unit: "HOP", min: 5 },
@@ -182,7 +183,7 @@ const SKU_LIST = [
   { sku: "25431", name: "Shelftalker TNL hòa tan", unit: "CAI", min: 5 },
   { sku: "25432", name: "Ly sứ TNL Cappuccino", unit: "CAI", min: 10 },
   { sku: "25433", name: "Wobler TNL hòa tan", unit: "CAI", min: 5 },
-  { sku: "25434", name: "Bình giữ nhiệt TNL 2025", unit: "CAI", min: 2 },
+  { sku: "25434", name: "Bình giữ nhiệt TNL đặc biệt", unit: "CAI", min: 2 },
   { sku: "25435", name: "Sample Kit bộ 3 (Tiếng Việt)", unit: "HOP", min: 2 },
   { sku: "25443", name: "Túi vải đặc biệt TNL (đen)", unit: "CAI", min: 5 },
   { sku: "25447", name: "Giấy rơm", unit: "B500", min: 1 },
@@ -190,7 +191,8 @@ const SKU_LIST = [
   { sku: "25559", name: "Mứt Táo đỏ long nhãn 1kg", unit: "HOP", min: 2 }
 ];
 
-export default function App() {
+// --- 3. LOGIC CHÍNH CỦA ỨNG DỤNG ---
+function App() {
   const [view, setView] = useState('scan'); 
   const [sku, setSku] = useState('');
   const [name, setName] = useState('');
@@ -237,7 +239,6 @@ export default function App() {
     });
   }, [logs]);
 
-  // Hiển thị màu sắc dựa trên hạn sử dụng
   const getBatchColor = (hsd) => {
     if (!hsd || hsd === "Không có Date") return "text-gray-400";
     const today = new Date();
@@ -372,10 +373,10 @@ export default function App() {
                 {showSuggestions && filteredProducts.length > 0 && (
                   <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
                     {filteredProducts.map((p, idx) => (
-                      <button key={idx} onClick={() => selectProduct(p)} className="w-full p-4 text-left border-b border-gray-50 hover:bg-indigo-50 flex justify-between items-center group">
+                      <button key={idx} onClick={() => selectProduct(p)} className="w-full p-4 text-left border-b border-gray-50 hover:bg-blue-50 flex justify-between items-center group">
                         <div className="flex-1">
                           <div className="text-xs font-bold text-gray-800 line-clamp-1">{p.name}</div>
-                          <div className="text-[9px] text-gray-400 mt-1 font-mono tracking-tighter">{p.sku} • Cần nhập khi còn: {p.min} {p.unit}</div>
+                          <div className="text-[9px] text-gray-400 mt-1 font-mono tracking-tighter">{p.sku} • Định mức: {p.min} {p.unit}</div>
                         </div>
                         <span className="text-[9px] bg-gray-100 text-gray-500 px-2 py-1 rounded font-bold uppercase">{p.unit}</span>
                       </button>
@@ -415,7 +416,7 @@ export default function App() {
               <button 
                 onClick={handleSave} disabled={isSyncing} 
                 className={`w-full py-4 rounded-xl flex items-center justify-center gap-2 transition-all font-bold text-xs uppercase tracking-widest shadow-lg ${
-                  isSyncing ? 'bg-gray-300 text-gray-500' : (isAdjustment ? 'bg-orange-600 text-white' : 'bg-indigo-600 text-white')
+                  isSyncing ? 'bg-gray-300 text-gray-500' : (isAdjustment ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-indigo-600 text-white shadow-indigo-100')
                 }`}
               >
                 {isSyncing ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
@@ -426,7 +427,7 @@ export default function App() {
         )}
 
         {view === 'summary' && (
-          <div className="space-y-4 animate-in slide-in-from-right-4">
+          <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
             <div className="flex justify-between items-center px-1">
               <h2 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2"><Database size={14} /> Tổng Kho</h2>
               <button onClick={() => setShowResetConfirm(true)} className="text-[9px] font-bold text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-100 uppercase uppercase tracking-tighter">Reset Kho</button>
@@ -447,7 +448,7 @@ export default function App() {
                              </span>
                            )}
                         </div>
-                        <p className="text-[9px] text-gray-400 font-mono mt-1 uppercase">{item.sku} • Min: {item.min}</p>
+                        <p className="text-[9px] text-gray-400 font-mono mt-1 uppercase">{item.sku} • Định mức: {item.min}</p>
                       </div>
                       <div className="text-right">
                         <span className={`text-lg font-black tracking-tighter ${item.totalQty <= item.min ? 'text-rose-600' : 'text-gray-900'}`}>{item.totalQty}</span>
@@ -482,7 +483,7 @@ export default function App() {
                       <p className="text-[9px] text-gray-400 font-bold mb-1 uppercase tracking-tighter">{log.thoi_gian}</p>
                       <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{log.ten_san_pham}</h4>
                       <div className="mt-1 flex gap-2">
-                        <span className={`text-[8px] px-2 py-0.5 rounded font-black uppercase border ${log.loai === 'KiemKe' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>{log.loai === 'KiemKe' ? 'Kiểm kê' : 'Nhập hàng'}</span>
+                        <span className={`text-[8px] px-2 py-0.5 rounded font-black uppercase border ${log.loai === 'KiemKe' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>{log.loai === 'KiemKe' ? 'Check' : 'In'}</span>
                       </div>
                     </div>
                     <div className="text-right"><span className="text-lg font-black text-gray-900">{log.so_luong}</span></div>
@@ -494,11 +495,18 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-lg border border-gray-200 rounded-2xl px-2 py-2 flex justify-around items-center z-40 shadow-2xl">
-        <button onClick={() => setView('scan')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'scan' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><Camera size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">Nhập</span></button>
-        <button onClick={() => setView('summary')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'summary' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><LayoutDashboard size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">Kho</span></button>
-        <button onClick={() => setView('history')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'history' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><List size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">Nhật ký</span></button>
+      <nav className="fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-lg border border-gray-200 rounded-2xl px-2 py-2 flex justify-around items-center z-40 shadow-2xl shadow-gray-200/50">
+        <button onClick={() => setView('scan')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'scan' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><Camera size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">In</span></button>
+        <button onClick={() => setView('summary')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'summary' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><LayoutDashboard size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">All</span></button>
+        <button onClick={() => setView('history')} className={`flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all ${view === 'history' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400'}`}><List size={20} /><span className="text-[9px] font-bold uppercase tracking-widest">Tory</span></button>
       </nav>
     </div>
   );
 }
+
+// --- 4. KHỞI CHẠY ---
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
